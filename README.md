@@ -33,7 +33,12 @@ The name is meant to suggest a system forged under pressure: repeated local tria
 
 ## Initial Design
 
-The current version contains two benchmark families and three agent styles:
+The current version contains:
+
+- a lightweight benchmark suite for exact-memory and bookkeeping tasks,
+- a real CartPole PPO experiment path backed by PufferLib vectorization,
+- reporting artifacts for local monitoring and run comparison,
+- three simple agent styles for non-learned algorithmic tasks.
 
 - `ReactiveAgent`
   - Stateless baseline. Responds only to the current observation.
@@ -51,6 +56,17 @@ The benchmark families are:
 
 This does not reproduce Percepta directly. Instead, it creates a place to test the *behavioral consequences* of stronger internal computation against tool-like external bookkeeping.
 
+## Real Experiment Path
+
+DamascusEngine now includes a real local training path:
+
+- environment: CartPole-v1
+- runtime: PufferLib vectorization
+- trainer: in-repo PPO loop
+- outputs: `metrics.csv`, `summary.json`, per-run `training_curves.png`, and cross-run comparison reports
+
+This is deliberate. PufferLib is strongest as a runtime substrate here, not as the full user-facing experiment layer.
+
 ## Repo Layout
 
 ```text
@@ -60,6 +76,10 @@ src/damascusengine/
   agents.py               Baseline agent implementations
   runner.py               Benchmark runner and reporting
   research_loop.py        Local search loop over configs
+  experiments/
+    cartpole_ppo.py       Real PPO training run using PufferLib vectorization
+  reporting/
+    cartpole_report.py    Run comparison report generator
   benchmarks/
     inventory_flow.py     Deterministic bookkeeping benchmark
     sequence_memory.py    Deterministic long-horizon benchmark
@@ -75,6 +95,8 @@ source .venv/bin/activate
 pip install -e .
 damascusengine-benchmark --config configs/baseline.json
 damascusengine-research --config configs/search.json
+PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.cartpole_ppo --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 131072 --rollout-steps 128 --update-epochs 4 --minibatch-size 512 --output-dir results/cartpole-proof
+PYTHONPATH=src .venv/bin/python -m damascusengine.reporting.cartpole_report --root results --output-dir results/reports
 ```
 
 ## Why This Is Interesting
@@ -94,11 +116,13 @@ The natural next steps are:
 
 The first useful result is already visible: the repo can now compare stateful and stateless agents across both memory and bookkeeping workloads, not just one memory toy.
 
+The first real systems result is also visible: on this M4 Max machine, the PufferLib-backed CartPole run reached a best 20-episode mean return of `121.7` over `131,072` environment steps using the multiprocessing backend.
+
 ## Near-Term Roadmap
 
 1. Add more tasks: planning, inventory bookkeeping, graph search.
-2. Add learned policies and train/eval adapters.
-3. Add result comparison dashboards.
+2. Add harder learned tasks than CartPole, preferably partial-observation or memory-heavy domains.
+3. Compare DamascusEngine PPO against more native PufferLib training paths on the same environments.
 4. Add autonomous proposal generation for new configs and benchmarks.
 
 ## References

@@ -1,0 +1,4 @@
+{
+  "notes": "Suggested real local run on M4 Max using PufferLib vectorization and DamascusEngine PPO.",
+  "command": "PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.cartpole_ppo --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 200000 --rollout-steps 128 --update-epochs 4 --minibatch-size 256 --output-dir results/cartpole"
+}
