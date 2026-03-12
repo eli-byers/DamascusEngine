@@ -25,13 +25,7 @@ The initial repo focuses on:
 - a repeatable local experiment loop,
 - results saved in a machine-readable format.
 
-The name is meant to suggest a system forged under pressure: repeated local trials, hard benchmarks, and exact feedback loops.
-
-## Working Name
-
-`DamascusEngine` is a working project name. It has only been lightly screened for obvious collisions and is not legal clearance.
-
-## Initial Design
+## Current Design
 
 The current version contains:
 
@@ -55,7 +49,7 @@ The benchmark families are:
 - `InventoryFlowEnv`
   - Observe a stream of inventory updates across item IDs, survive a delay, report the exact final count of one queried item.
 
-This does not reproduce Percepta directly. Instead, it creates a place to test the *behavioral consequences* of stronger internal computation against tool-like external bookkeeping.
+This does not reproduce Percepta directly. It creates a place to test the *behavioral consequences* of stronger internal computation against tool-like external bookkeeping.
 
 ## Real Experiment Path
 
@@ -66,7 +60,7 @@ DamascusEngine now includes a real local training path:
 - trainer: in-repo PPO loop
 - outputs: `metrics.csv`, `summary.json`, per-run `training_curves.png`, and cross-run comparison reports
 
-This is deliberate. PufferLib is strongest as a runtime substrate here, not as the full user-facing experiment layer.
+This is deliberate. PufferLib is used here as a runtime substrate, not as the full user-facing experiment layer.
 
 ## Memory Experiment Path
 
@@ -125,7 +119,7 @@ This repo gives you a controlled place to explore three layers at once:
 - training or eval world: tasks where long-horizon reliability matters,
 - outer loop: how a local research agent searches over designs.
 
-The natural next steps are:
+The next steps are:
 
 - add PufferLib-backed environments,
 - swap heuristic agents for learned recurrent or transformer policies,
@@ -156,4 +150,4 @@ The first thesis-relevant result is also visible: on the delayed cue-recall task
 
 ## Current Status
 
-This repository starts intentionally small. The current scaffold is useful if it helps you ask better questions and run tighter local experiments, not because it is already complex.
+The repo is now beyond the initial scaffold stage. It has real experiment paths, real reporting artifacts, and at least one result that cleanly separates feedforward and recurrent policies on a delayed-memory task.
