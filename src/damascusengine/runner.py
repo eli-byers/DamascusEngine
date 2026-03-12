@@ -6,20 +6,23 @@ from pathlib import Path
 from statistics import mean
 
 from damascusengine.agents import build_agent
-from damascusengine.benchmarks.sequence_memory import SequenceMemoryEnv
+from damascusengine.benchmarks import build_benchmark
 
 
-def run_benchmark(config: dict) -> dict:
-    benchmark = config["benchmark"]
-    env = SequenceMemoryEnv(
-        sequence_length=int(benchmark["sequence_length"]),
-        delay=int(benchmark["delay"]),
-        seed=int(benchmark.get("seed", 0)),
-    )
+def normalize_benchmarks(config: dict) -> list[dict]:
+    if "benchmarks" in config:
+        return list(config["benchmarks"])
+    if "benchmark" in config:
+        return [config["benchmark"]]
+    raise ValueError("config must define 'benchmark' or 'benchmarks'")
+
+
+def run_single_benchmark(benchmark: dict, agent_names: list[str]) -> dict:
+    env = build_benchmark(benchmark)
     episodes = int(benchmark["episodes"])
 
     summaries = []
-    for agent_name in config["agents"]:
+    for agent_name in agent_names:
         agent = build_agent(agent_name)
         correctness = []
         traces = []
@@ -34,8 +37,7 @@ def run_benchmark(config: dict) -> dict:
                 "agent": agent_name,
                 "accuracy": mean(correctness),
                 "episodes": episodes,
-                "sequence_length": benchmark["sequence_length"],
-                "delay": benchmark["delay"],
+                "benchmark_type": benchmark["type"],
                 "sample_trace": traces[0],
             }
         )
@@ -44,6 +46,36 @@ def run_benchmark(config: dict) -> dict:
         "benchmark": benchmark,
         "results": summaries,
     }
+
+
+def summarize_suite(benchmark_runs: list[dict]) -> dict:
+    per_agent: dict[str, list[float]] = {}
+    for run in benchmark_runs:
+        for result in run["results"]:
+            per_agent.setdefault(result["agent"], []).append(result["accuracy"])
+
+    aggregate = [
+        {
+            "agent": agent,
+            "mean_accuracy": mean(scores),
+            "benchmarks": len(scores),
+        }
+        for agent, scores in sorted(per_agent.items())
+    ]
+
+    return {
+        "benchmarks": benchmark_runs,
+        "aggregate": aggregate,
+    }
+
+
+def run_benchmark(config: dict) -> dict:
+    benchmark_specs = normalize_benchmarks(config)
+    benchmark_runs = [
+        run_single_benchmark(benchmark_spec, config["agents"])
+        for benchmark_spec in benchmark_specs
+    ]
+    return summarize_suite(benchmark_runs)
 
 
 def write_output(payload: dict, output_path: str | None) -> None:

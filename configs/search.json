@@ -1,13 +1,27 @@
 {
-  "benchmark": {
-    "episodes": 80,
-    "sequence_length": 5,
-    "delay": 3,
-    "seed": 11
-  },
+  "benchmarks": [
+    {
+      "type": "sequence_memory",
+      "episodes": 80,
+      "sequence_length": 5,
+      "delay": 3,
+      "seed": 11,
+      "sweep": ["sequence_length", "delay"]
+    },
+    {
+      "type": "inventory_flow",
+      "episodes": 80,
+      "num_items": 5,
+      "num_operations": 8,
+      "delay": 3,
+      "seed": 23,
+      "sweep": ["num_operations", "delay"]
+    }
+  ],
   "search": {
-    "sequence_lengths": [4, 5, 6, 7],
-    "delays": [2, 3, 4, 5]
+    "sequence_length": [4, 5, 6, 7],
+    "num_operations": [6, 8, 10, 12],
+    "delay": [2, 3, 4, 5]
   },
   "agents": [
     "reactive",

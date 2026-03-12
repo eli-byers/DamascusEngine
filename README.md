@@ -33,7 +33,7 @@ The name is meant to suggest a system forged under pressure: repeated local tria
 
 ## Initial Design
 
-The first version contains one benchmark family and three agent styles:
+The current version contains two benchmark families and three agent styles:
 
 - `ReactiveAgent`
   - Stateless baseline. Responds only to the current observation.
@@ -42,7 +42,12 @@ The first version contains one benchmark family and three agent styles:
 - `RegisterAgent`
   - Uses compact internal register updates. This stands in for a more computation-native agent design.
 
-The benchmark is `SequenceMemoryEnv`, a small deterministic environment where the agent must track a hidden sequence across a delay and answer exact queries. It is intentionally simple and cheap so the experiment loop can run many trials quickly.
+The benchmark families are:
+
+- `SequenceMemoryEnv`
+  - Observe a hidden binary sequence, survive a delay, answer an exact indexed query.
+- `InventoryFlowEnv`
+  - Observe a stream of inventory updates across item IDs, survive a delay, report the exact final count of one queried item.
 
 This does not reproduce Percepta directly. Instead, it creates a place to test the *behavioral consequences* of stronger internal computation against tool-like external bookkeeping.
 
@@ -56,6 +61,7 @@ src/damascusengine/
   runner.py               Benchmark runner and reporting
   research_loop.py        Local search loop over configs
   benchmarks/
+    inventory_flow.py     Deterministic bookkeeping benchmark
     sequence_memory.py    Deterministic long-horizon benchmark
 ```
 
@@ -85,6 +91,8 @@ The natural next steps are:
 - swap heuristic agents for learned recurrent or transformer policies,
 - add code-editing automation in the style of `autoresearch`,
 - introduce compiled subroutines or constrained execution channels.
+
+The first useful result is already visible: the repo can now compare stateful and stateless agents across both memory and bookkeeping workloads, not just one memory toy.
 
 ## Near-Term Roadmap
 

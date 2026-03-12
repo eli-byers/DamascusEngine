@@ -36,13 +36,14 @@ class SequenceMemoryEnv:
         agent.reset()
 
         for token in episode.sequence:
-            agent.act({"phase": "observe", "token": token})
+            agent.act({"task": "sequence_memory", "phase": "observe", "token": token})
 
         for _ in range(episode.delay):
-            agent.act({"phase": "delay"})
+            agent.act({"task": "sequence_memory", "phase": "delay"})
 
         prediction = agent.act(
             {
+                "task": "sequence_memory",
                 "phase": "query",
                 "query_index": episode.query_index,
             }
