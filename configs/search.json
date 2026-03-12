@@ -1,0 +1,18 @@
+{
+  "benchmark": {
+    "episodes": 80,
+    "sequence_length": 5,
+    "delay": 3,
+    "seed": 11
+  },
+  "search": {
+    "sequence_lengths": [4, 5, 6, 7],
+    "delays": [2, 3, 4, 5]
+  },
+  "agents": [
+    "reactive",
+    "scratchpad",
+    "register"
+  ],
+  "output_path": "results/search.json"
+}

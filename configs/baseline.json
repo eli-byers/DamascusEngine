@@ -1,0 +1,14 @@
+{
+  "benchmark": {
+    "episodes": 100,
+    "sequence_length": 6,
+    "delay": 4,
+    "seed": 7
+  },
+  "agents": [
+    "reactive",
+    "scratchpad",
+    "register"
+  ],
+  "output_path": "results/baseline.json"
+}
