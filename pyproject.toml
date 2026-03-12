@@ -19,7 +19,9 @@ dependencies = [
 damascusengine-benchmark = "damascusengine.runner:main"
 damascusengine-research = "damascusengine.research_loop:main"
 damascusengine-cartpole = "damascusengine.experiments.cartpole_ppo:main"
+damascusengine-memory = "damascusengine.experiments.memory_ppo:main"
 damascusengine-report = "damascusengine.reporting.cartpole_report:main"
+damascusengine-memory-report = "damascusengine.reporting.memory_report:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

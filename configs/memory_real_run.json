@@ -1,0 +1,7 @@
+{
+  "notes": "Run both feedforward and recurrent PPO on the cue-recall memory task.",
+  "commands": [
+    "PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.memory_ppo --agent ff --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 100000 --rollout-steps 64 --update-epochs 4 --minibatch-envs 8 --cue-delay 8 --output-dir results/memory",
+    "PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.memory_ppo --agent gru --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 100000 --rollout-steps 64 --update-epochs 4 --minibatch-envs 8 --cue-delay 8 --output-dir results/memory"
+  ]
+}

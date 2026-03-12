@@ -37,6 +37,7 @@ The current version contains:
 
 - a lightweight benchmark suite for exact-memory and bookkeeping tasks,
 - a real CartPole PPO experiment path backed by PufferLib vectorization,
+- a partially observable cue-recall task with feedforward vs recurrent PPO,
 - reporting artifacts for local monitoring and run comparison,
 - three simple agent styles for non-learned algorithmic tasks.
 
@@ -67,6 +68,18 @@ DamascusEngine now includes a real local training path:
 
 This is deliberate. PufferLib is strongest as a runtime substrate here, not as the full user-facing experiment layer.
 
+## Memory Experiment Path
+
+DamascusEngine also includes a thesis-relevant memory task:
+
+- environment: cue-recall with delayed query
+- observation model: partially observable
+- comparison: feedforward PPO vs GRU PPO
+- runtime: PufferLib vectorization
+- outputs: per-agent run artifacts plus a comparison report
+
+This is the first experiment in the repo where recurrence materially changes capability rather than just sample efficiency.
+
 ## Repo Layout
 
 ```text
@@ -78,8 +91,10 @@ src/damascusengine/
   research_loop.py        Local search loop over configs
   experiments/
     cartpole_ppo.py       Real PPO training run using PufferLib vectorization
+    memory_ppo.py         Feedforward vs recurrent PPO on a delayed-memory task
   reporting/
     cartpole_report.py    Run comparison report generator
+    memory_report.py      Memory-run comparison report generator
   benchmarks/
     inventory_flow.py     Deterministic bookkeeping benchmark
     sequence_memory.py    Deterministic long-horizon benchmark
@@ -96,7 +111,10 @@ pip install -e .
 damascusengine-benchmark --config configs/baseline.json
 damascusengine-research --config configs/search.json
 PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.cartpole_ppo --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 131072 --rollout-steps 128 --update-epochs 4 --minibatch-size 512 --output-dir results/cartpole-proof
+PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.memory_ppo --agent ff --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 65536 --rollout-steps 64 --update-epochs 4 --minibatch-envs 8 --cue-delay 12 --output-dir results/memory-proof
+PYTHONPATH=src .venv/bin/python -m damascusengine.experiments.memory_ppo --agent gru --backend multiprocessing --num-envs 32 --num-workers 8 --total-timesteps 65536 --rollout-steps 64 --update-epochs 4 --minibatch-envs 8 --cue-delay 12 --output-dir results/memory-proof
 PYTHONPATH=src .venv/bin/python -m damascusengine.reporting.cartpole_report --root results --output-dir results/reports
+PYTHONPATH=src .venv/bin/python -m damascusengine.reporting.memory_report --root results/memory-proof --output-dir results/reports
 ```
 
 ## Why This Is Interesting
@@ -118,10 +136,12 @@ The first useful result is already visible: the repo can now compare stateful an
 
 The first real systems result is also visible: on this M4 Max machine, the PufferLib-backed CartPole run reached a best 20-episode mean return of `121.7` over `131,072` environment steps using the multiprocessing backend.
 
+The first thesis-relevant result is also visible: on the delayed cue-recall task with `cue_delay=12`, the feedforward PPO run stayed near chance with final `success_rate_50 = 0.48`, while the GRU PPO run reached `success_rate_50 = 0.98` and a best of `1.00` over the same `65,536` step budget.
+
 ## Near-Term Roadmap
 
 1. Add more tasks: planning, inventory bookkeeping, graph search.
-2. Add harder learned tasks than CartPole, preferably partial-observation or memory-heavy domains.
+2. Add more partial-observation and algorithmic tasks where recurrence is not sufficient by itself.
 3. Compare DamascusEngine PPO against more native PufferLib training paths on the same environments.
 4. Add autonomous proposal generation for new configs and benchmarks.
 
